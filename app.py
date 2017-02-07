@@ -3,6 +3,7 @@ import sys
 import json
 import datetime
 import requests
+import re
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -46,21 +47,16 @@ def verify():
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
-    msg = "Hello world " + str(datetime.datetime.now())
-    print(msg)
+    msg = "It's now :" + str(datetime.datetime.now())
     return msg, 200
 
 
 @app.route('/', methods=['POST'])
 def webhook():
-
     # endpoint for processing incoming messaging events
-
     data = request.get_json()
-    log(data)  # you may not want to log every incoming message in production, but it's good for testing
-
+    # log(data)  # you may not want to log every incoming message in production, but it's good for testing
     if data["object"] == "page":
-
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
                 if messaging_event.get("message"):  # someone sent us a message
@@ -68,39 +64,36 @@ def webhook():
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
 
-                    return_msg = "You said: " + message_text
+                    email, phone = extract_details(message_text)
+                    return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
+
+                    # todo: store name, contact, phone
                     send_message(sender_id, return_msg)
 
-                if messaging_event.get("delivery"):  # delivery confirmation
-                    pass
-
-                if messaging_event.get("optin"):  # optin confirmation
-                    pass
-
-                if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
+                if messaging_event.get("delivery") or \
+                    messaging_event.get("optin") or \
+                        messaging_event.get("postback"):
                     pass
 
     return "ok", 200
 
+def extract_details(from_msg):
+    """
+    rtype: email, phone
+    """
+    email = re.search(r'[\w\.-]+@[\w\.-]+', from_msg)
+    phone = re.search(r"\(?\b[2-9][0-9]{2}\)?[-. ]?[2-9][0-9]{2}[-. ]?[0-9]{4}\b", from_msg)
+    return email.group(0), phone.group(0)
+
 
 def send_message(recipient_id, message_text):
-
-    log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))
-
-    params = {
-        "access_token": os.environ["PAGE_ACCESS_TOKEN"]
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    data = json.dumps({
-        "recipient": {
-            "id": recipient_id
-        },
-        "message": {
-            "text": message_text
-        }
-    })
+    #log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))
+    params = {"access_token": os.environ["PAGE_ACCESS_TOKEN"]}
+    headers = {"Content-Type": "application/json"}
+    data = json.dumps(
+        {"recipient": {"id": recipient_id },
+        "message": {"text": message_text }}
+    )
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
     if r.status_code != 200:
         log(r.status_code)
@@ -113,4 +106,4 @@ def log(message):  # simple wrapper for logging to stdout on heroku
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
