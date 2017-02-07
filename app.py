@@ -17,7 +17,7 @@ def verify():
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
-    return "Hello world", 200
+    return "Hello world !!!", 200
 
 
 @app.route('/', methods=['POST'])
@@ -78,7 +78,7 @@ def send_message(recipient_id, message_text):
 
 
 def log(message):  # simple wrapper for logging to stdout on heroku
-    print str(message)
+    print(str(message))
     sys.stdout.flush()
 
 
