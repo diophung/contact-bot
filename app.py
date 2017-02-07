@@ -6,7 +6,7 @@ import requests
 import re
 from extractor import Extractor
 from flask import Flask, request
-from flask.ext.pymongo import PyMongo
+from flask_pymongo import PyMongo
 
 # Create the Flask app
 app = Flask(__name__)
