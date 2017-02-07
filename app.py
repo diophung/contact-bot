@@ -1,11 +1,40 @@
 import os
 import sys
 import json
-
+import datetime
 import requests
 from flask import Flask, request
 
 app = Flask(__name__)
+
+"""
+FB msg JSON
+{
+  "entry": [
+    {
+      "id": "250739768699976",
+      "messaging": [
+        {
+          "message": {
+            "mid": "mid.1486432321387:d0e4611277",
+            "seq": 51407,
+            "text": "hi"
+          },
+          "recipient": {
+            "id": "250739768699976"
+          },
+          "sender": {
+            "id": "1348096228598500"
+          },
+          "timestamp": 1486432321387
+        }
+      ],
+      "time": 1486432321525
+    }
+  ],
+  "object": "page"
+}
+"""
 
 
 @app.route('/', methods=['GET'])
@@ -17,7 +46,9 @@ def verify():
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
-    return "Hello world !!!", 200
+    msg = "Hello world " + str(datetime.datetime.now())
+    print(msg)
+    return msg, 200
 
 
 @app.route('/', methods=['POST'])
@@ -32,14 +63,13 @@ def webhook():
 
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
-
                 if messaging_event.get("message"):  # someone sent us a message
-
                     sender_id = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
 
-                    send_message(sender_id, "got it, thanks!")
+                    return_msg = "You said: " + message_text
+                    send_message(sender_id, return_msg)
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
