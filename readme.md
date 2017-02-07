@@ -18,4 +18,4 @@ or kimcuong AT gmail DOT com
 
 
 ## Credits
-All thanks to [original tutorial] from Hartley Brody (https://blog.hartleybrody.com/fb-messenger-bot/).
+All thanks to [original tutorial](https://blog.hartleybrody.com/fb-messenger-bot/) from Hartley Brody.
