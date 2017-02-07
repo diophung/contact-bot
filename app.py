@@ -37,7 +37,7 @@ def webhook():
                     message_text = messaging_event["message"]["text"]  # the message's text
                     return_msg = "Sorry, I can't get your email and phone number. Please try again"
                     email, phone = extract_details(message_text)
-                    if email != "" and phone != ""
+                    if email != "" and phone != "":
                         return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
 
                     # todo: store name, contact, phone
