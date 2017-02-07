@@ -6,8 +6,13 @@ import requests
 import re
 from extractor import Extractor
 from flask import Flask, request
+from flask.ext.pymongo import PyMongo
 
+# Create the Flask app
 app = Flask(__name__)
+app.config.from_object('app_conf.Config')
+if isinstance(app.config['MGDB_PREFIX'], str):
+    app.mongo = PyMongo(app, config_prefix=app.config['MGDB_PREFIX'])
 
 
 @app.route('/', methods=['GET'])
