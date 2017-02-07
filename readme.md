@@ -1,14 +1,21 @@
-# Facebook Messenger Bot
-This is a simple python template that uses Flask to build a webhook for Facebook's Messenger Bot API.
+# Contact Bot
+This is a simple chatbot to capture contact information. 
+It was build using Flask and Facebook's Messenger Bot API.
 
-Read more in my [tutorial that uses this repository](https://blog.hartleybrody.com/fb-messenger-bot/).
+## Syntax
+Enter your information as:
 
-## "Callback verification failed"
+   >Email is <<email@example.com>> and phone is <555-555-5555>
 
-![Facebook Error](https://cloud.githubusercontent.com/assets/18402893/21538944/f96fcd1e-cdc7-11e6-83ee-a866190d9080.png)
 
-The #1 error that gets reported in issues is that facebook returns an error message (like above) when trying to add the heroku endpoint to your facebook chat application.
+## URL
+Bot URL : https://www.facebook.com/contactchatbot
 
-Our flask application intentionally returns a 403 Forbidden error if the token that facebook sends doesn't match the token you set using the heroku configuration variables.
 
-If you're getting this error, it likely means that you didn't set your heroku config values properly. Run `heroku config` from the command line within your application and verify that there's a key called `VERIFY_TOKEN` that has been set, and that it's set to the same value as what you've typed into the window on facebook.
+## Support & contact
+Contact us: diophung AT outlook DOT com 
+or kimcuong AT gmail DOT com
+
+
+## Credits
+All thanks to [original tutorial] from Hartley Brody (https://blog.hartleybrody.com/fb-messenger-bot/).
