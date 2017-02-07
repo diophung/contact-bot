@@ -4,7 +4,7 @@ import json
 import datetime
 import requests
 import re
-import extracter
+from extractor import Extractor
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -19,7 +19,7 @@ def verify():
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
-    msg = "It's now :" + str(datetime.datetime.now())
+    msg = "It's now " + str(datetime.datetime.now())
     return msg, 200
 
 
@@ -36,7 +36,8 @@ def webhook():
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
                     return_msg = "Sorry, I can't get your email and phone number. Please try again"
-                    email, phone = extract_details(message_text)
+                    ext = Extractor()
+                    email, phone = ext.extract_details(message_text)
                     if email != "" and phone != "":
                         return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
 
