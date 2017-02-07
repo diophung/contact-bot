@@ -83,8 +83,9 @@ def extract_details(from_msg):
     """
     email = re.search(r'[\w\.-]+@[\w\.-]+', from_msg)
     phone = re.search(r"\(?\b[2-9][0-9]{2}\)?[-. ]?[2-9][0-9]{2}[-. ]?[0-9]{4}\b", from_msg)
-    return email.group(0), phone.group(0)
-
+    if email and phone and email.group(0) and phone.group(0):
+        return email.group(0), phone.group(0)
+    return "<error>","<error>"
 
 def send_message(recipient_id, message_text):
     #log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))
