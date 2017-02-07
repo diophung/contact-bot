@@ -4,38 +4,10 @@ import json
 import datetime
 import requests
 import re
+import extracter
 from flask import Flask, request
 
 app = Flask(__name__)
-
-"""
-FB msg JSON
-{
-  "entry": [
-    {
-      "id": "250739768699976",
-      "messaging": [
-        {
-          "message": {
-            "mid": "mid.1486432321387:d0e4611277",
-            "seq": 51407,
-            "text": "hi"
-          },
-          "recipient": {
-            "id": "250739768699976"
-          },
-          "sender": {
-            "id": "1348096228598500"
-          },
-          "timestamp": 1486432321387
-        }
-      ],
-      "time": 1486432321525
-    }
-  ],
-  "object": "page"
-}
-"""
 
 
 @app.route('/', methods=['GET'])
@@ -63,9 +35,10 @@ def webhook():
                     sender_id = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
-
+                    return_msg = "Sorry, I can't get your email and phone number. Please try again"
                     email, phone = extract_details(message_text)
-                    return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
+                    if email != "" and phone != ""
+                        return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
 
                     # todo: store name, contact, phone
                     send_message(sender_id, return_msg)
@@ -77,15 +50,6 @@ def webhook():
 
     return "ok", 200
 
-def extract_details(from_msg):
-    """
-    rtype: email, phone
-    """
-    email = re.search(r'[\w\.-]+@[\w\.-]+', from_msg)
-    phone = re.search(r"\(?\b[2-9][0-9]{2}\)?[-. ]?[2-9][0-9]{2}[-. ]?[0-9]{4}\b", from_msg)
-    if email and phone and email.group(0) and phone.group(0):
-        return email.group(0), phone.group(0)
-    return "<error>","<error>"
 
 def send_message(recipient_id, message_text):
     #log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))
