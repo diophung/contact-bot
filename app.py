@@ -96,8 +96,11 @@ def store_contact(facebook_id, email, phone):
         mongo_contacts.update_one(query={
             "facebook_id": facebook_id,
         }, update={
-            "email": email,
-            "phone": phone
+            "$set": {
+                "email": email,
+                "phone": phone
+            }
+
         })
 
 
