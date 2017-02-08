@@ -54,7 +54,7 @@ def webhook():
                         store_contact(sender_id, email, phone)
                         return_msg = "Got it. Your email: " + email + ", and phone:" + phone + ". Thanks"
                     else:
-                        return_msg = "Sorry, I can't get your email and phone number. Please try again"
+                        return_msg = "Hi, can I have your email & phone number?"
                     send_message(sender_id, return_msg)
 
                 if messaging_event.get("delivery") or \
