@@ -57,11 +57,6 @@ def webhook():
                                 "phone": phone
                             })
 
-                            mongo_contacts.insert_one(query={
-                                "facebook_id": messaging_event["sender"]["id"],
-                                "email": email,
-                                "phone": phone
-                            })
 
 
                         return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
