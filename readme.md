@@ -15,9 +15,8 @@ Facebook page: https://www.facebook.com/contactchatbot
 
 
 ## Contributors
-diophung AT outlook DOT com 
-haibeo AT gmail DOT com
-
+- [diophung](https://github.com/diophung)
+- [greentornado](https://github.com/greentornado)
 
 ## Credits
 All thanks to [original tutorial](https://blog.hartleybrody.com/fb-messenger-bot/) from Hartley Brody.
