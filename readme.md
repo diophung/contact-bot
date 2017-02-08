@@ -6,7 +6,9 @@ This is a simple chatbot to capture contact information. It was build using Flas
 Chat with the bot using these formats:
 
    >Email is email@example.com and phone is 555-555-5555
+
    >email@example.com,  0983.123.456
+
    >email@example.com 0165-123-4567
 
 
