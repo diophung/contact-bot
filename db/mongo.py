@@ -7,7 +7,7 @@
     Author: Hai Nguyen (Jin) haibeo at gmail dot com / skype jiimmy.hai
     Date: 03/2016
 """
-from backend.sangia import app
+from app import app
 
 ################################
 # Base functions
@@ -146,6 +146,9 @@ class MongoCollection():
         self.collection = collection
         self.mongodb = mongodb
 
+
+
+
     def find_one(self, query={}):
         return find_one(collection=self.collection, query=query, mongodb=self.mongodb)
 
@@ -173,6 +176,11 @@ class MongoCollection():
     def delete_one(self, query={}):
         return delete_one(collection=self.collection, query=query,
                           mongodb=self.mongodb)
+
+    def check_exist(self, query={}):
+        find = self.find_one(query=query)
+        if find is not None:
+            return True
 
 """
     Auto create convenient collection accessor:

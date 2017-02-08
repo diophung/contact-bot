@@ -10,10 +10,12 @@ from flask_pymongo import PyMongo
 
 # Create the Flask app
 app = Flask(__name__)
-app.config.from_object('app_conf.Config')
+app.config.from_object('configuration.Config')
 if isinstance(app.config['MGDB_PREFIX'], str):
     app.mongo = PyMongo(app, config_prefix=app.config['MGDB_PREFIX'])
 
+# Import auto-created mongodb collection helpers
+from db.mongo import mongo_contacts
 
 @app.route('/', methods=['GET'])
 def verify():
@@ -32,7 +34,7 @@ def verify():
 def webhook():
     # endpoint for processing incoming messaging events
     data = request.get_json()
-    # log(data)  # you may not want to log every incoming message in production, but it's good for testing
+    log(data)  # you may not want to log every incoming message in production, but it's good for testing
     if data["object"] == "page":
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
@@ -44,9 +46,23 @@ def webhook():
                     ext = Extractor()
                     email, phone = ext.extract_details(message_text)
                     if email != "" and phone != "":
+                        # Check for existing contact
+                        check_exist = mongo_contacts.check_exist(query={"facebook_id": messaging_event["sender"]["id"]})
+                        log(check_exist)
+                        if check_exist is None:
+                            #Store facebook user, name, contact email, phone
+                            mongo_contacts.insert_one(query={
+                                "facebook_id": messaging_event["sender"]["id"],
+                                "email": email,
+                                "phone": phone
+                            })
+
+
+
                         return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
 
-                    # todo: store name, contact, phone
+
+
                     send_message(sender_id, return_msg)
 
                 if messaging_event.get("delivery") or \
