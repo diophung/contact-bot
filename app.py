@@ -97,8 +97,8 @@ def store_contact(facebook_id, email, phone):
             "facebook_id": facebook_id,
         }, update={
             "$set": {
-                    "email": email,
-                    "phone": phone
+                "email": email,
+                "phone": phone
             }
 
         })
