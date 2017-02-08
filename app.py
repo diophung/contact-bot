@@ -46,8 +46,6 @@ def webhook():
                     ext = Extractor()
                     email, phone = ext.extract_details(message_text)
                     if email != "" and phone != "":
-                        return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
-
                         # Check for existing contact
                         check_exist = mongo_contacts.check_exist(query={"facebook_id": messaging_event["sender"]["id"]})
                         log(check_exist)
@@ -58,6 +56,17 @@ def webhook():
                                 "email": email,
                                 "phone": phone
                             })
+
+                            mongo_contacts.insert_one(query={
+                                "facebook_id": messaging_event["sender"]["id"],
+                                "email": email,
+                                "phone": phone
+                            })
+
+
+                        return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
+
+
 
                     send_message(sender_id, return_msg)
 
