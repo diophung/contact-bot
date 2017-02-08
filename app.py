@@ -46,15 +46,11 @@ def webhook():
                     ext = Extractor()
                     reply = "Hi, can I have your email & phone number please?"
                     send_message(sender_id, reply)
-                    while True:
-                        email, phone = ext.extract_details(message_text)
-                        if email and phone:
-                            store_contact(sender_id, email, phone)
-                            reply = "Got it. Your email is " + email + " and phone is " + phone + ". Thanks."
-                            send_message(sender_id, reply)
-                            pass
-                        else:
-                            send_message(sender_id, reply)
+                    email, phone = ext.extract_details(message_text)
+                    if email != "" and phone != "":
+                        store_contact(sender_id, email, phone)
+                        reply = "Got it. Your email is " + email + " and phone is " + phone + ". Thanks."
+                    send_message(sender_id, reply)
 
                 if messaging_event.get("delivery") or \
                     messaging_event.get("optin") or \
