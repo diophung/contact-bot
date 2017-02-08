@@ -51,7 +51,7 @@ def webhook():
                         # Check for existing contact
                         check_exist = mongo_contacts.check_exist(query={"facebook_id": messaging_event["sender"]["id"]})
                         log(check_exist)
-                        if check_exist:
+                        if check_exist is None:
                             #Store facebook user, name, contact email, phone
                             mongo_contacts.insert_one(query={
                                 "facebook_id": messaging_event["sender"]["id"],
