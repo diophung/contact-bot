@@ -7,7 +7,7 @@
     Author: Hai Nguyen (Jin) haibeo at gmail dot com / skype jiimmy.hai
     Date: 03/2016
 """
-from backend.sangia import app
+from app import app
 
 ################################
 # Base functions

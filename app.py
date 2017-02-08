@@ -14,6 +14,10 @@ app.config.from_object('app_conf.Config')
 if isinstance(app.config['MGDB_PREFIX'], str):
     app.mongo = PyMongo(app, config_prefix=app.config['MGDB_PREFIX'])
 
+# Import mongodb helpers
+from db.mongo import mongo_contacts
+print(str(mongo_contacts))
+
 
 @app.route('/', methods=['GET'])
 def verify():
