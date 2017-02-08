@@ -52,20 +52,22 @@ def webhook():
                     email, phone = ext.extract_details(message_text)
                     if email != "" and phone != "":
                         # Check for existing contact
+
+                        facebook_id = messaging_event["sender"]["id"]
                         check_exist = mongo_contacts.check_exist(
-                            query={"facebook_id": messaging_event["sender"]["id"]})
+                            query={"facebook_id": facebook_id})
                         log(check_exist)
                         if check_exist is None:
                             # Store facebook user, name, contact email, phone
                             mongo_contacts.insert_one(query={
-                                "facebook_id": messaging_event["sender"]["id"],
+                                "facebook_id": facebook_id,
                             }, update={
                                 "email": email,
                                 "phone": phone
                             })
                         else:
                             mongo_contacts.update_one(query={
-                                "facebook_id": messaging_event["sender"]["id"],
+                                "facebook_id": facebook_id,
                                 "email": email,
                                 "phone": phone
                             })
