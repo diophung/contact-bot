@@ -44,12 +44,13 @@ def webhook():
                     sender_id = messaging_event["sender"]["id"]
                     message_text = messaging_event["message"]["text"]
                     ext = Extractor()
-                    reply = "Hi, can I have your email & phone number please?"
-                    send_message(sender_id, reply)
+                    reply = ""
                     email, phone = ext.extract_details(message_text)
                     if email != "" and phone != "":
                         store_contact(sender_id, email, phone)
                         reply = "Got it. Your email is " + email + " and phone is " + phone + ". Thanks."
+                    else:
+                        reply = "Hi, can I have your email & phone number please?"
                     send_message(sender_id, reply)
 
                 if messaging_event.get("delivery") or \
