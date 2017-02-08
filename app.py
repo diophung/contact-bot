@@ -57,8 +57,6 @@ def webhook():
                                 "phone": phone
                             })
 
-
-
                         return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
 
 
