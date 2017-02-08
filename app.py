@@ -52,7 +52,7 @@ def webhook():
                     email, phone = ext.extract_details(message_text)
                     if email != "" and phone != "":
                         # Check for existing contact
-                        store_contact(sender_id,email,phone)
+                        store_contact(sender_id, email, phone)
                         return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
 
                     send_message(sender_id, return_msg)
@@ -80,7 +80,7 @@ def send_message(recipient_id, message_text):
         log(r.text)
 
 
-def store_contact(facebook_id,email,phone):
+def store_contact(facebook_id, email, phone):
 
     check_exist = mongo_contacts.check_exist(
         query={"facebook_id": facebook_id})
@@ -89,13 +89,13 @@ def store_contact(facebook_id,email,phone):
         # Store facebook user, name, contact email, phone
         mongo_contacts.insert_one(query={
             "facebook_id": facebook_id,
-        }, update={
             "email": email,
             "phone": phone
         })
     else:
         mongo_contacts.update_one(query={
             "facebook_id": facebook_id,
+        }, update={
             "email": email,
             "phone": phone
         })
