@@ -35,27 +35,26 @@ def verify():
 def webhook():
     # endpoint for processing incoming messaging events
     data = request.get_json()
-    log(data)  # you may not want to log every incoming message in production, but it's good for testing
+    log(data)  # log all msg, ok for this chatbot
     if data["object"] == "page":
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
-                if messaging_event.get("message"):  # someone sent us a message
-                    # the facebook ID of the person sending you the message
+                # someone sent us a message
+                if messaging_event.get("message"):
                     sender_id = messaging_event["sender"]["id"]
-                    # the recipient's ID, which should be your page's facebook
-                    recipient_id = messaging_event["recipient"]["id"]
-                    message_text = messaging_event["message"][
-                        "text"]  # the message's text
-                    return_msg = ""
+                    message_text = messaging_event["message"]["text"]
                     ext = Extractor()
-                    email, phone = ext.extract_details(message_text)
-                    if email != "" and phone != "":
-                        # Check for existing contact
-                        store_contact(sender_id, email, phone)
-                        return_msg = "Got it. Your email: " + email + ", and phone:" + phone + ". Thanks"
-                    else:
-                        return_msg = "Hi, can I have your email & phone number?"
-                    send_message(sender_id, return_msg)
+                    reply = "Hi, can I have your email & phone number please?"
+                    send_message(sender_id, reply)
+                    while True:
+                        email, phone = ext.extract_details(message_text)
+                        if email and phone:
+                            store_contact(sender_id, email, phone)
+                            reply = "Got it. Your email is " + email + " and phone is " + phone + ". Thanks."
+                            send_message(sender_id, reply)
+                            pass
+                        else:
+                            send_message(sender_id, reply)
 
                 if messaging_event.get("delivery") or \
                     messaging_event.get("optin") or \
@@ -66,7 +65,6 @@ def webhook():
 
 
 def send_message(recipient_id, message_text):
-    #log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))
     params = {"access_token": os.environ["PAGE_ACCESS_TOKEN"]}
     headers = {"Content-Type": "application/json"}
     data = json.dumps(
