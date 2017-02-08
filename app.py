@@ -52,24 +52,7 @@ def webhook():
                     email, phone = ext.extract_details(message_text)
                     if email != "" and phone != "":
                         # Check for existing contact
-                        check_exist = mongo_contacts.check_exist(
-                            query={"facebook_id": messaging_event["sender"]["id"]})
-                        log(check_exist)
-                        if check_exist is None:
-                            # Store facebook user, name, contact email, phone
-                            mongo_contacts.insert_one(query={
-                                "facebook_id": messaging_event["sender"]["id"],
-                            }, update={
-                                "email": email,
-                                "phone": phone
-                            })
-                        else:
-                            mongo_contacts.update_one(query={
-                                "facebook_id": messaging_event["sender"]["id"],
-                                "email": email,
-                                "phone": phone
-                            })
-
+                        store_contact(sender_id,email,phone)
                         return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
 
                     send_message(sender_id, return_msg)
@@ -95,6 +78,27 @@ def send_message(recipient_id, message_text):
     if r.status_code != 200:
         log(r.status_code)
         log(r.text)
+
+
+def store_contact(facebook_id,email,phone):
+
+    check_exist = mongo_contacts.check_exist(
+        query={"facebook_id": facebook_id})
+    log(check_exist)
+    if check_exist is None:
+        # Store facebook user, name, contact email, phone
+        mongo_contacts.insert_one(query={
+            "facebook_id": facebook_id,
+        }, update={
+            "email": email,
+            "phone": phone
+        })
+    else:
+        mongo_contacts.update_one(query={
+            "facebook_id": facebook_id,
+            "email": email,
+            "phone": phone
+        })
 
 
 def log(message):  # simple wrapper for logging to stdout on heroku
