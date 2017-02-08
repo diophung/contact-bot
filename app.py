@@ -10,14 +10,12 @@ from flask_pymongo import PyMongo
 
 # Create the Flask app
 app = Flask(__name__)
-app.config.from_object('app_conf.Config')
+app.config.from_object('configuration.Config')
 if isinstance(app.config['MGDB_PREFIX'], str):
     app.mongo = PyMongo(app, config_prefix=app.config['MGDB_PREFIX'])
 
-# Import mongodb helpers
+# Import auto-created mongodb collection helpers
 from db.mongo import mongo_contacts
-print(str(mongo_contacts))
-
 
 @app.route('/', methods=['GET'])
 def verify():
@@ -50,7 +48,13 @@ def webhook():
                     if email != "" and phone != "":
                         return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
 
-                    # todo: store name, contact, phone
+                        #Store facebook user, name, contact email, phone
+                        mongo_contacts.insert_one({
+                            "facebook_id": messaging_event["sender"]["id"],
+                            "email": email,
+                            "phone": phone
+                        })
+
                     send_message(sender_id, return_msg)
 
                 if messaging_event.get("delivery") or \
