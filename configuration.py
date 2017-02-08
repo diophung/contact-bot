@@ -1,4 +1,5 @@
 import os
+
 class Config(object):
     MGDB_PREFIX = "MONGO"
     MONGO_URI = os.environ["MONGO_URI"]

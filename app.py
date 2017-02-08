@@ -43,18 +43,18 @@ def webhook():
                     # the facebook ID of the person sending you the message
                     sender_id = messaging_event["sender"]["id"]
                     # the recipient's ID, which should be your page's facebook
-                    # ID
                     recipient_id = messaging_event["recipient"]["id"]
                     message_text = messaging_event["message"][
                         "text"]  # the message's text
-                    return_msg = "Sorry, I can't get your email and phone number. Please try again"
+                    return_msg = ""
                     ext = Extractor()
                     email, phone = ext.extract_details(message_text)
                     if email != "" and phone != "":
                         # Check for existing contact
                         store_contact(sender_id, email, phone)
-                        return_msg = "Your email: " + email + ", and phone:" + phone + ". Is it correct?"
-
+                        return_msg = "Got it. Your email: " + email + ", and phone:" + phone + ". Thanks"
+                    else:
+                        return_msg = "Sorry, I can't get your email and phone number. Please try again"
                     send_message(sender_id, return_msg)
 
                 if messaging_event.get("delivery") or \
