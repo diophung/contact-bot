@@ -1,0 +1,7 @@
+{
+    "contact_registration": {
+        "class": "ContactRegistration",
+        "path": "./handlers/contact_registration.py",
+        "description": "Extract email and phone"
+    }
+}

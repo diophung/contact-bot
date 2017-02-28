@@ -4,19 +4,17 @@ import json
 import datetime
 import requests
 import re
-from extractor import Extractor
 from flask import Flask, request
 from flask_pymongo import PyMongo
-
+from common.log_util import log
+from message_dispatcher import MessageDispatcher
 # Create the Flask app
 app = Flask(__name__)
 app.config.from_object('configuration.Config')
 if isinstance(app.config['MGDB_PREFIX'], str):
     app.mongo = PyMongo(app, config_prefix=app.config['MGDB_PREFIX'])
 
-# Import auto-created mongodb collection helpers
-from db.mongo import mongo_contacts
-
+dispatcher = MessageDispatcher()
 
 @app.route('/', methods=['GET'])
 def verify():
@@ -42,15 +40,8 @@ def webhook():
                 # someone sent us a message
                 if messaging_event.get("message"):
                     sender_id = messaging_event["sender"]["id"]
-                    message_text = messaging_event["message"]["text"]
-                    ext = Extractor()
-                    reply = ""
-                    email, phone = ext.extract_details(message_text)
-                    if email != "" and phone != "":
-                        store_contact(sender_id, email, phone)
-                        reply = "Got it. Your email is " + email + " and phone is " + phone + ". Thanks."
-                    else:
-                        reply = "Hi, can I have your email & phone number please?"
+                    message_data = messaging_data(messaging_event['message'])
+                    reply = dispatcher.dispatch_and_process(sender_id, message_data)
                     send_message(sender_id, reply)
 
                 if messaging_event.get("delivery") or \
@@ -75,34 +66,52 @@ def send_message(recipient_id, message_text):
         log(r.text)
 
 
-def store_contact(facebook_id, email, phone):
-
-    check_exist = mongo_contacts.check_exist(
-        query={"facebook_id": facebook_id})
-    log(check_exist)
-    if check_exist is None:
-        # Store facebook user, name, contact email, phone
-        mongo_contacts.insert_one(query={
-            "facebook_id": facebook_id,
-            "email": email,
-            "phone": phone
-        })
-    else:
-        mongo_contacts.update_one(query={
-            "facebook_id": facebook_id,
-        }, update={
-            "$set": {
-                "email": email,
-                "phone": phone
+def messaging_data(message_data):
+    # Text only
+    if "text" in message_data and "quick_reply" not in message_data:
+        text = message_data['text'].encode('unicode_escape')
+        data = {
+            "type": "text",
+            "data": text,
+            "messaging_id": message_data['mid']
+        }
+        return data
+    # Includes attachment(photo, audio, file, location...)
+    elif "attachments" in message_data:
+        if "location" == message_data['attachments'][0]['type']:
+            coordinates = message_data['attachments'][0]['payload']['coordinates']
+            latitude = coordinates['lat']
+            longtitude = coordinates['long']
+            data = {
+                "type": "location",
+                "data": [latitude, longtitude],
+                "message_id": message_data['mid']
             }
-
-        })
-
-
-def log(message):  # simple wrapper for logging to stdout on heroku
-    print(str(message))
-    sys.stdout.flush()
-
+            return data
+        elif "audio" == message_data['attachments'][0]['type']:
+            audio_url = message_data['attachments'][0]['payload']['url']
+            data = {
+                "type": "audio",
+                "data": audio_url,
+                "message_id": message_data['mid']
+            }
+            return data
+        elif "photo" == message_data['attactments'][0]['type']:
+            photo_url = message_data['attachments'][0]['payload']['url']
+            data = {
+                "type": "audio",
+                "data": photo_url,
+                "message_id": message_data['mid']
+            }
+            return data
+        else:
+            data = {
+                "type": "text",
+                "data": "Sorry, I don't understand",
+                "message_id": message_data['mid']
+            }
+            return data
+    return None
 
 if __name__ == '__main__':
     app.run(debug=False)
